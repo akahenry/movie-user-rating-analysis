@@ -66,3 +66,8 @@ class Hash():
             elif self.hash_list[(index + i)%self.length].key == key:
                 return self.hash_list[(index + i)%self.length]
         return None
+
+    def iterable(self):
+        for hash_element in self.hash_list:
+            if hash_element.key != None:
+                yield hash_element

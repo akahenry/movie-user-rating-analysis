@@ -2,4 +2,4 @@ rating.csv
 movie.csv
 minirating.csv
 tag.csv
-_pycache_/
+__pycache__/

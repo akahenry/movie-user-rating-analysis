@@ -55,6 +55,61 @@ def userSearch(userId, userHash, movieHash):
     else:
         return None
 
+# StringToTags: str -> list
+# Objetivo: dado uma string com nomes de tags no formato "'<tag1>' '<tag2>' (...)", retorna
+#   uma lista com os nomes das tags. Neste caso, retornaria ["tag1", "tag2"].
+def StringToTags(tagStr):
+    inWord = False
+    tag = ""
+    tagList = []
+
+    for ch in tagStr:
+        if not inWord and ch == "'":
+            inWord = True
+        elif not inWord and ch != "'":
+            continue
+        elif inWord and ch == "'":
+            inWord = False
+            tagList.append(tag)
+            tag = ""
+        elif inWord and ch != "'":
+            tag = tag + ch
+
+    return tagList
+
+# tagSearch: list -> pd.DataFrame
+# Objetivo: dados uma lista de tags, a função devolve um dataframe em que as colunas
+#   são title', 'genres', 'rating' e 'count', onde cada linha é um filme que contém
+#   todas as tags na lista de tags.
+def tagSearch(tagList, movieHash):
+    movieList = []
+    df = pd.DataFrame(columns=['title', 'genres', 'rating', 'count'])
+    for movie in movieHash.iterable():
+        # Coloca todos filmes da primeira tag
+        tag = tagList[0]
+        if tag in movie.data[1]:
+            if movie not in movieList:
+                movieList.append(movie)
+
+    # Tira os filmes que não tem as outras tags
+    for tag in tagList[1:]:
+        filter(lambda x: tag in x.data[1], movieList)
+
+    for movie in movieList:
+        title = movie.data[4]
+        genres = movie.data[0]
+        rating = movie.data[2]
+        count = movie.data[3]
+
+        auxDF = pd.DataFrame([[title, genres, rating, count]], columns=['title', 'genres', 'rating', 'count'])
+        df = df.append(auxDF)
+
+    if movieList != []:
+        return df
+    else:
+        return None
+
+
 
 time = Time("main")
 
@@ -83,6 +138,7 @@ strIn = input()
 while strIn != "Exit":
     cls()
     auxVector = strIn.split(' ')
+    dataframe = None
     if len(auxVector) <= 1:
         print("Error.")
     else:
@@ -93,6 +149,9 @@ while strIn != "Exit":
         elif auxVector[0] == "user":
             userId = int(auxVector[1])
             dataframe = userSearch(userId, userHash, movieHash)
+        elif auxVector[0] == "tags":
+            taglist = StringToTags(strIn.replace("tags ", ""))
+            dataframe = tagSearch(taglist, movieHash)
 
         if type(dataframe) != type(None):
             print(dataframe.to_string())
