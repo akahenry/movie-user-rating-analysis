@@ -1,7 +1,6 @@
 import csv
 from trie import *
 from hash import *
-from bst import *
 
 def transpose(matrix):
 	return [[matrix[j][i] for j in range(len(matrix))] for i in range(len(matrix[0]))]
@@ -20,24 +19,33 @@ def readCSV(filename):
 
 	return return_list
 
-# Cria a hash onde cada entrada é um filme, usando
-# como chave o movieId, e como dados uma 4-upla:
-# (movieId, genres, mean, n_ratings)
-# onde mean é a média de avaliações e n_ratings é o número de avaliações.
-# <ADICIONAR NESSA FUNÇÃO A PARTE DE CRIAR A BST (NO MESMO LOOP DO ratingMatrix)>
-def createMovieHash(movieMatrix, ratingMatrix):
+# createHashs: matrix matrix matrix -> (hash, hash)
+# Objetivo: dada duas matrizes referentes a leitura dos arquivos:
+# 	- movies.csv
+#	- rating.csv
+#	a função retorna uma tupla com o primeiro elemento sendo a hash de usuários
+#	e o segundo a hash de filmes.
+# 	-UserHASH: cria a hash onde cada entrada é um usuário, usando
+# 		como chave o userId, e como dados uma lita de 2-upla:
+# 		(movieId, rating)
+# 		onde movieId é o id do filme avaliado pelo usuário e rating é a avaliação
+#		que esse usuário deu para o filme em questão.
+# 	-MovieHASH: cria a hash onde cada entrada é um filme, usando
+# 		como chave o movieId, e como dados uma 5-upla:
+# 		(genres, tags, mean, n_ratings, name)
+# 		onde genres é uma lista de gêneros, tags é uma lista de tags, mean é a média
+#		de avaliações, n_ratings é o número de avaliações e name é o nome do filme.
+def createHashs(movieMatrix, ratingMatrix, tagMatrix):
 	# Cria a hash com o dobro do número de entradas
-	hash = Hash(len(movieMatrix)*2)
-
-	# Inicializando a BST com a primeira chave, e um dado qualquer
-	# (será atualizado mais tarde)
-	bst = BST(ratingMatrix[0][0], 0)
+	userHASH = Hash(len(ratingMatrix))
+	movieHASH = Hash(int(movieMatrix[-1][0]))
 
 	# Adiciona id e generos dos filmes
 	for movie in movieMatrix:
 		movieId = int(movie[0])
+		name = movie[1]
 		genres = movie[2]
-		hash.insert(movieId, (movieId, genres, 0, 0))
+		movieHASH.insert(movieId, (genres, [], 0, 0, name))
 
 	# Para cada rating, incrementa numero de rating do filme e seu somatório de notas
 	for rating in ratingMatrix:
@@ -45,35 +53,43 @@ def createMovieHash(movieMatrix, ratingMatrix):
 		movieId = int(rating[1])
 		ratingValue = float(rating[2])
 
-		movieTemp = hash.search(movieId)
+		movieTemp = movieHASH.search(movieId)
 
-		genres = movieTemp[1]
-		old_num_ratings = movieTemp[3]
-		old_sum = movieTemp[2]
+		if movieTemp != None:
+			genres = movieTemp.data[0]
+			old_num_ratings = movieTemp.data[3]
+			old_sum = movieTemp.data[2]
+			name = movieTemp.data[4]
 
-		hash.change(movieId, (movieId, genres, old_sum + ratingValue, old_num_ratings + 1))
+			movieHASH.insert(movieId, (genres, [], old_sum + ratingValue, old_num_ratings + 1, name))
+
+			if userHASH.search(userId) == None:
+				userHASH.insert(userId, [])
+			userHASH.insert(userId, (movieId, ratingValue))
 
 	# Calcula a média de notas de cada filme
 	for movie in movieMatrix:
 		movieId = int(movie[0])
-		movieTemp = hash.search(movieId)
-		if(movieTemp[3] != 0):
-			hash.change(movieId, (movieTemp[0], movieTemp[1], movieTemp[2]/movieTemp[3], movieTemp[3]))
+		movieTemp = movieHASH.search(movieId)
+		if(movieTemp.data[3] != 0):
+			movieHASH.insert(movieId, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
 
-	return hash
+	# Insere as Tags na Hash de filmes.
+	for tag in tagMatrix:
+		movieId = int(tag[1])
+		tagName = tag[2]
+
+		movieTemp = movieHASH.search(movieId)
+
+		if tagName not in movieTemp.data[1]:
+			movieHASH.insert(movieId, (movieTemp.data[0], movieTemp.data[1] + [tagName], movieTemp.data[2], movieTemp.data[3], movieTemp.data[4]))
+
+	return (userHASH, movieHASH)
 
 def createTrie(movieMatrix):
 	trie = trieNode()
 
-	posKey = 1
-	posId = 0
-
-	for row in movieMatrix:
-		for i in range(0, len(row)):
-			if i == posKey:
-				key = row[i]
-			elif i == posId:
-				Id = row[i]
-		trie.insert(key, Id)
+	for movie in movieMatrix:
+		trie.insert(movie[1], int(movie[0]))
 
 	return trie
