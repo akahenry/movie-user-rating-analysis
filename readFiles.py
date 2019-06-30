@@ -68,11 +68,9 @@ def createHashs(movieMatrix, ratingMatrix, tagMatrix):
 			userHASH.insert(userId, (movieId, ratingValue))
 
 	# Calcula a média de notas de cada filme
-	for movie in movieMatrix:
-		movieId = int(movie[0])
-		movieTemp = movieHASH.search(movieId)
-		if(movieTemp.data[3] != 0):
-			movieHASH.insert(movieId, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
+	for movie in movieHASH.iterable():
+		if(movie.data[3] != 0):
+			movieHASH.insert(movie.key, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
 
 	# Insere as Tags na Hash de filmes.
 	for tag in tagMatrix:
