@@ -97,9 +97,10 @@ def topSearch(n, genre, movieHash):
     # tem tamanho n)
     movieList = []
     for movie in movieHash.iterable():
-        if movie.data[3] >= 1000:
+        ## ATENÇÃO: QUANDO FOR RODAR COM RATING.CSV, TROCAR 10 POR 1000 ##
+        if movie.data[3] >= 10:
             if genre in movie.data[0].split('|'):
-                if len(movieList) <= n:
+                if len(movieList) < n:
                     insort(movieList, movie)
                 elif movie.data[2] > movieList[-1].data[2]:
                     insort(movieList, movie)
