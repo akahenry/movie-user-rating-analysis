@@ -157,7 +157,7 @@ time = Time("main")
 
 # Lendo arquivos CSV
 movieMatrix = readCSV("movie.csv")
-ratingMatrix = readCSV("rating.csv")
+#ratingMatrix = readCSV("rating.csv")
 tagMatrix = readCSV("tag.csv")
 
 print("Li CSV")
@@ -170,7 +170,6 @@ print("Criei Trie")
 
 time.time("create_trie")
 
-userHASH = Hash(len(ratingMatrix))
 movieHASH = Hash(int(movieMatrix[-1][0]))
 
 time.time("initialize_hash")
@@ -188,19 +187,24 @@ time.time("add_movie_id")
 
 time.print()
 
+rating_file = open("rating.csv", "r")
+userHASH = Hash(sum(1 for line in rating_file))
+
+rating_file.seek(0)
+next(rating_file)
+
 # Para cada rating, incrementa numero de rating do filme e seu somatório de notas
-for rating in ratingMatrix:
+for rating_str in rating_file:
+    rating = rating_str.split(",")
     userId = int(rating[0])
     movieId = int(rating[1])
     ratingValue = float(rating[2])
 
     userHASH.append(userId, (movieId, ratingValue))
     aux = movieHASH.search(movieId)
-#(genres, tags, mean, n_ratings, name)
+    #(genres, tags, mean, n_ratings, name)
     if aux != None:
         movieHASH.insert(movieId, (aux.data[0], aux.data[1], aux.data[2] + ratingValue, aux.data[3] + 1, aux.data[4]))
-
-del ratingMatrix
 
 time.time("read rating")
 
