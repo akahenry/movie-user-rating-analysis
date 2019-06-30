@@ -77,9 +77,50 @@ def StringToTags(tagStr):
 
     return tagList
 
+# tagSearch: int str Hash -> pd.DataFrame
+# Objetivo: dado um número n, uma string s e uma Hash de filmes, retorna um
+#   dataframe em que as colunas são 'title', 'genres', 'rating' e 'count',
+#   e as n linhas são um filme cada, que contém o gênero s, e no mínimo 1000
+#   ratings. (ordenado pelo rating, decrescentemente)
+def topSearch(n, genre, movieHash):
+    # Sub-função para inserir um filme no lugar certo,  em uma lista já
+    # ordenada de filmes.
+    def insort(ls, item):
+        if ls == [] or item.data[2] < ls[-1].data[2]:
+            ls.append(item)
+        for i in range(len(ls)):
+            if ls[i].data[2] < item.data[2]:
+                ls.insert(i, item)
+                break
+
+    # Vai inserindo na lista, e retirando o último elemento (quando a lista
+    # tem tamanho n)
+    movieList = []
+    for movie in movieHash.iterable():
+        if movie.data[3] >= 1000:
+            if genre in movie.data[0].split('|'):
+                if len(movieList) <= n:
+                    insort(movieList, movie)
+                elif movie.data[2] > movieList[-1].data[2]:
+                    insort(movieList, movie)
+                    movieList = movieList[:n]
+
+    # Cria e retorna o dataframe
+    df = pd.DataFrame(columns=['title', 'genres', 'rating', 'count'])
+    for movie in movieList:
+        title = movie.data[4]
+        genres = movie.data[0]
+        rating = movie.data[2]
+        count = movie.data[3]
+
+        auxDF = pd.DataFrame([[title, genres, rating, count]], columns=['title', 'genres', 'rating', 'count'])
+        df = df.append(auxDF)
+
+    return df
+
 # tagSearch: list -> pd.DataFrame
 # Objetivo: dados uma lista de tags, a função devolve um dataframe em que as colunas
-#   são title', 'genres', 'rating' e 'count', onde cada linha é um filme que contém
+#   são 'title', 'genres', 'rating' e 'count', onde cada linha é um filme que contém
 #   todas as tags na lista de tags.
 def tagSearch(tagList, movieHash):
     movieList = []
@@ -108,7 +149,6 @@ def tagSearch(tagList, movieHash):
         return df
     else:
         return None
-
 
 
 time = Time("main")
@@ -149,6 +189,8 @@ while strIn != "Exit":
         elif auxVector[0] == "user":
             userId = int(auxVector[1])
             dataframe = userSearch(userId, userHash, movieHash)
+        elif auxVector[0][0:3] == "top":
+            dataframe = topSearch(int(auxVector[0][3:]), auxVector[1].strip("'"), movieHash)
         elif auxVector[0] == "tags":
             taglist = StringToTags(strIn.replace("tags ", ""))
             dataframe = tagSearch(taglist, movieHash)
