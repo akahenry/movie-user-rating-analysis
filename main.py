@@ -21,6 +21,7 @@ def movieSearch(prefix, trie, movieHash):
             title = tuple[0]
             movieId = tuple[1]
             element = movieHash.search(movieId)
+
             genres = element.data[0]
             rating = element.data[2]
             count = element.data[3]
@@ -159,13 +160,19 @@ movieMatrix = readCSV("movie.csv")
 ratingMatrix = readCSV("minirating.csv")
 tagMatrix = readCSV("tag.csv")
 
+print("Li CSV")
+
 time.time("load_files")
 
 trie = createTrie(movieMatrix)
 
+print("Criei Trie")
+
 time.time("create_trie")
 
 Hashs = createHashs(movieMatrix, ratingMatrix, tagMatrix)
+
+print("Criei Hash")
 
 userHash = Hashs[0]
 movieHash = Hashs[1]

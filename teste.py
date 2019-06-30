@@ -19,7 +19,9 @@ class Hash_element():
 class Hash():
     def __init__(self, length):
         self.length = length
-        self.hash_list = list(None)*length
+        self.hash_list = list()
+        aux = Hash_element()
+        self.hash_list = [aux]*length
 
     # h_function: int -> int
     # Objetivo: dado um número inteiro, essa função mapeia esse número a outro número
@@ -38,26 +40,37 @@ class Hash():
     # Observação: se a tabela estiver cheia e não possuir a chave dada, a função devolve False.
     #   Senão, devolve True.
     def insert(self, key, data):
-        index = key%self.length
-        self.hash_list[index].key = key
-        self.hash_list[index].data = data
-        self.hash_list[index].used = True
+        index = self.h_function(key)
+        value = index%self.length
+        if not self.hash_list[value].used:
+            self.hash_list[value].key = key
+            self.hash_list[value].data = data
+            self.hash_list[value].used = True
+            return True
+        else:
+            return False
 
     def append(self, key, data):
-        index = key%self.length
-        if not self.hash_list[index].used:
+        index = self.h_function(key)
+        value = index%self.length
+        if not self.hash_list[value].used:
             self.insert(key, [data])
         else:
-            self.hash_list[index].data.append(data)
+            if type(data) == tuple:
+                self.hash_list[value].data.append(data)
+            else:
+                self.hash_list[value].data = data
+            return True
 
 
     # search: int -> Hash_element
     # Objetivo: dada uma chave inteira a função devolve o Hash_element referente a essa chave
     #   se ela está presente na lista. Senão, devolve None.
     def search(self, key):
-        index = key%self.length
-        if self.hash_list[index].key == key:
-            return self.hash_list[index]
+        index = self.h_function(key)
+        value = index%self.length
+        if self.hash_list[value].key == key:
+            return self.hash_list[value]
         else:
             return None
 
@@ -65,3 +78,20 @@ class Hash():
         for hash_element in self.hash_list:
             if hash_element.key != None:
                 yield hash_element
+
+
+
+hash = Hash(10)
+hash.insert(1, None)
+hash.insert(0, None)
+hash.insert(2, None)
+hash.insert(3, None)
+hash.insert(4, None)
+hash.insert(5, None)
+hash.insert(6, None)
+hash.insert(7, None)
+hash.insert(8, None)
+hash.insert(9, None)
+
+for i in range(10):
+    print(hash.hash_list[i].key)
