@@ -19,7 +19,9 @@ class Hash_element():
 class Hash():
     def __init__(self, length):
         self.length = length
-        self.hash_list = list(None)*length
+        self.hash_list = list()
+        for i in range(length):
+            self.hash_list.append(Hash_element())
 
     # h_function: int -> int
     # Objetivo: dado um número inteiro, essa função mapeia esse número a outro número

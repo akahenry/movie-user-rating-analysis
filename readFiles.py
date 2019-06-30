@@ -42,18 +42,18 @@ def createHashs(movieMatrix, ratingMatrix, tagMatrix):
 
 	# Adiciona id e generos dos filmes
 	for movie in movieMatrix:
-		movieElement = Hash_element()
-		movieElement.key = int(movie[0])
-		movieElement.data = (movie[2], [], 0, 0, movie[1])
-		movieHASH.insert(movieId, movieElement)
+		movieId = int(movie[0])
+		name = movie[1]
+		genres = movie[2]
+		movieHASH.insert(movieId, (genres, [], 0, 0, name))
 
 	# Para cada rating, incrementa numero de rating do filme e seu somatório de notas
 	for rating in ratingMatrix:
-		userElement.key = int(rating[0])
-		movieElement.key = int(rating[1])
+		userId = int(rating[0])
+		movieId = int(rating[1])
 		ratingValue = float(rating[2])
 
-		movieTemp = movieHASH.search(movieElement.key)
+		movieTemp = movieHASH.search(movieId)
 
 		if movieTemp != None:
 			genres = movieTemp.data[0]
