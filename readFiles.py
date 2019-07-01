@@ -63,14 +63,14 @@ def createHashs(movieMatrix, ratingMatrix, tagMatrix):
 
 			movieHASH.insert(movieId, (genres, [], old_sum + ratingValue, old_num_ratings + 1, name))
 
-			if userHASH.search(userId) == None:
-				userHASH.insert(userId, [])
-			userHASH.insert(userId, (movieId, ratingValue))
+		userHASH.append(userId, (movieId, ratingValue))
 
 	# Calcula a média de notas de cada filme
-	for movie in movieHASH.iterable():
-		if(movie.data[3] != 0):
-			movieHASH.insert(movie.key, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
+	for movie in movieMatrix:
+		movieId = int(movie[0])
+		movieTemp = movieHASH.search(movieId)
+		if(movieTemp != None and movieTemp.data[3] != 0):
+			movieHASH.insert(movieId, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
 
 	# Insere as Tags na Hash de filmes.
 	for tag in tagMatrix:
@@ -79,7 +79,7 @@ def createHashs(movieMatrix, ratingMatrix, tagMatrix):
 
 		movieTemp = movieHASH.search(movieId)
 
-		if tagName not in movieTemp.data[1]:
+		if movieTemp != None and tagName not in movieTemp.data[1]:
 			movieHASH.insert(movieId, (movieTemp.data[0], movieTemp.data[1] + [tagName], movieTemp.data[2], movieTemp.data[3], movieTemp.data[4]))
 
 	return (userHASH, movieHASH)

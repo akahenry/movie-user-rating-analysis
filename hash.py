@@ -40,32 +40,28 @@ class Hash():
     # Observação: se a tabela estiver cheia e não possuir a chave dada, a função devolve False.
     #   Senão, devolve True.
     def insert(self, key, data):
-        index = self.h_function(key)
-        for i in range(self.length):
-            if not self.hash_list[(index + i)%self.length].used:
-                self.hash_list[(index + i)%self.length].key = key
-                self.hash_list[(index + i)%self.length].data = data
-                self.hash_list[(index + i)%self.length].used = True
-                return True
-            elif self.hash_list[(index + i)%self.length].key == key or self.hash_list[(index + i)%self.length].key == None:
-                if type(self.hash_list[(index + i)%self.length].data) == list and type(data) == tuple:
-                    self.hash_list[(index + i)%self.length].data.append(data)
-                else:
-                    self.hash_list[(index + i)%self.length].data = data
-                return True
-        return False
+        index = key%self.length
+        self.hash_list[index].key = key
+        self.hash_list[index].data = data
+        self.hash_list[index].used = True
+
+    def append(self, key, data):
+        index = key%self.length
+        if not self.hash_list[index].used:
+            self.insert(key, [data])
+        else:
+            self.hash_list[index].data.append(data)
+
 
     # search: int -> Hash_element
     # Objetivo: dada uma chave inteira a função devolve o Hash_element referente a essa chave
     #   se ela está presente na lista. Senão, devolve None.
     def search(self, key):
-        index = self.h_function(key)
-        for i in range(self.length):
-            if not self.hash_list[(index + i)%self.length].used:
-                return None
-            elif self.hash_list[(index + i)%self.length].key == key:
-                return self.hash_list[(index + i)%self.length]
-        return None
+        index = key%self.length
+        if self.hash_list[index].key == key:
+            return self.hash_list[index]
+        else:
+            return None
 
     def iterable(self):
         for hash_element in self.hash_list:
