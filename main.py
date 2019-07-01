@@ -1,3 +1,5 @@
+# Código principal – Carrega nas estruturas de dados
+#from IPython.display import display
 from readFiles import *
 from timeClass import Time
 import pandas as pd
@@ -131,12 +133,11 @@ def tagSearch(tagList, movieHASH):
         # Coloca todos filmes da primeira tag
         tag = tagList[0]
         if tag in movie.data[1]:
-            if movie not in movieList:
-                movieList.append(movie)
+            movieList.append(movie)
 
     # Tira os filmes que não tem as outras tags
     for tag in tagList[1:]:
-        filter(lambda x: tag in x.data[1], movieList)
+        movieList = filter(lambda x: tag in x.data[1], movieList)
 
     for movie in movieList:
         title = movie.data[4]
@@ -160,21 +161,19 @@ movieMatrix = readCSV("movie.csv")
 #ratingMatrix = readCSV("rating.csv")
 tagMatrix = readCSV("tag.csv")
 
-print("Li CSV")
+print("Read the CSV files")
 
 time.time("load_files")
 
 trie = createTrie(movieMatrix)
 
-print("Criei Trie")
+print("Created Trie")
 
 time.time("create_trie")
 
 movieHASH = Hash(int(movieMatrix[-1][0]))
 
 time.time("initialize_hash")
-
-time.print()
 
 # Adiciona id e generos dos filmes
 for movie in movieMatrix:
@@ -184,8 +183,6 @@ for movie in movieMatrix:
     movieHASH.insert(movieId, (genres, [], 0, 0, name))
 
 time.time("add_movie_id")
-
-time.print()
 
 rating_file = open("rating.csv", "r")
 userHASH = Hash(sum(1 for line in rating_file))
@@ -208,8 +205,6 @@ for rating_str in rating_file:
 
 time.time("read rating")
 
-time.print()
-
 # Calcula a média de notas de cada filme
 for movie in movieMatrix:
     movieId = int(movie[0])
@@ -220,8 +215,6 @@ for movie in movieMatrix:
 del movieMatrix
 
 time.time("calculate_media")
-
-time.print()
 
 # Insere as Tags na Hash de filmes.
 for tag in tagMatrix:
@@ -234,35 +227,33 @@ for tag in tagMatrix:
         movieHASH.insert(movieId, (movieTemp.data[0], movieTemp.data[1] + [tagName], movieTemp.data[2], movieTemp.data[3], movieTemp.data[4]))
 
 del tagMatrix
-time.time("insert_tag")
 
-time.time("create_hash")
+time.time("insert tags and create hash")
 
+print("Created Hashes and finished Loading.")
 time.print()
 
-# Console:
+# Input do Console
 strIn = input()
-while strIn != "Exit":
-    cls()
-    auxVector = strIn.split(' ')
-    dataframe = None
-    if len(auxVector) <= 1:
-        print("Error.")
+auxVector = strIn.split(' ')
+dataframe = None
+if len(auxVector) <= 1:
+    print("Error.")
+else:
+    if auxVector[0] == "movie":
+        prefix = strIn.replace("movie ", "")
+        dataframe = movieSearch(prefix, trie, movieHASH)
+    elif auxVector[0] == "user":
+        userId = int(auxVector[1])
+        dataframe = userSearch(userId, userHASH, movieHASH)
+    elif auxVector[0][0:3] == "top":
+        dataframe = topSearch(int(auxVector[0][3:]), auxVector[1].strip("'"), movieHASH)
+    elif auxVector[0] == "tags":
+        taglist = StringToTags(strIn.replace("tags ", ""))
+        dataframe = tagSearch(taglist, movieHASH)
+
+    if type(dataframe) != type(None):
+        #display(dataframe)
+        print(dataframe.to_string())
     else:
-        if auxVector[0] == "movie":
-            prefix = strIn.replace("movie ", "")
-            print(prefix)
-            dataframe = movieSearch(prefix, trie, movieHASH)
-        elif auxVector[0] == "user":
-            userId = int(auxVector[1])
-            dataframe = userSearch(userId, userHASH, movieHASH)
-        elif auxVector[0][0:3] == "top":
-            dataframe = topSearch(int(auxVector[0][3:]), auxVector[1].strip("'"), movieHASH)
-        elif auxVector[0] == "tags":
-            taglist = StringToTags(strIn.replace("tags ", ""))
-            dataframe = tagSearch(taglist, movieHASH)
-
-        if type(dataframe) != type(None):
-            print(dataframe.to_string())
-
-    strIn = input()
+        print("nothing to show")
