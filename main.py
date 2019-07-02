@@ -93,7 +93,6 @@ def topSearch(n, genre, movieHASH):
     # Vai inserindo na lista, e retirando o último elemento (quando a lista
     # tem tamanho n)
     movieList = []
-    movieHASH.rewind()
     for movie in movieHASH.iterable():
         if movie.data[3] >= 10:
             if genre.lower() in movie.data[0].lower().split('|'):
@@ -123,7 +122,6 @@ def topSearch(n, genre, movieHASH):
 def tagSearch(tagList, movieHASH):
     movieList = []
     df = pd.DataFrame(columns=['title', 'genres', 'rating', 'count'])
-    movieHASH.rewind()
     for movie in movieHASH.iterable():
         # Coloca todos filmes da primeira tag
         tag = tagList[0]
