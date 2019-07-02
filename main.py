@@ -100,9 +100,8 @@ def topSearch(n, genre, movieHASH):
     # tem tamanho n)
     movieList = []
     for movie in movieHASH.iterable():
-        ## ATENÇÃO: QUANDO FOR RODAR COM RATING.CSV, TROCAR 10 POR 1000 ##
-        if movie.data[3] >= 10:
-            if genre in movie.data[0].split('|'):
+        if movie.data[3] >= 1000:
+            if genre.lower() in movie.data[0].lower().split('|'):
                 if len(movieList) < n:
                     insort(movieList, movie)
                 elif movie.data[2] > movieList[-1].data[2]:
@@ -233,27 +232,26 @@ time.time("insert tags and create hash")
 print("Created Hashes and finished Loading.")
 time.print()
 
-# Input do Console
-strIn = input()
-auxVector = strIn.split(' ')
-dataframe = None
-if len(auxVector) <= 1:
-    print("Error.")
-else:
-    if auxVector[0] == "movie":
-        prefix = strIn.replace("movie ", "")
-        dataframe = movieSearch(prefix, trie, movieHASH)
-    elif auxVector[0] == "user":
-        userId = int(auxVector[1])
-        dataframe = userSearch(userId, userHASH, movieHASH)
-    elif auxVector[0][0:3] == "top":
-        dataframe = topSearch(int(auxVector[0][3:]), auxVector[1].strip("'"), movieHASH)
-    elif auxVector[0] == "tags":
-        taglist = StringToTags(strIn.replace("tags ", ""))
-        dataframe = tagSearch(taglist, movieHASH)
-
-    if type(dataframe) != type(None):
-        #display(dataframe)
-        print(dataframe.to_string())
+# Função para Input do Console
+def console(strIn):
+    auxVector = strIn.split(' ')
+    dataframe = None
+    if len(auxVector) <= 1:
+        print("Error.")
     else:
-        print("nothing to show")
+        if auxVector[0] == "movie":
+            prefix = strIn.replace("movie ", "")
+            dataframe = movieSearch(prefix, trie, movieHASH)
+        elif auxVector[0] == "user":
+            userId = int(auxVector[1])
+            dataframe = userSearch(userId, userHASH, movieHASH)
+        elif auxVector[0][0:3] == "top":
+            dataframe = topSearch(int(auxVector[0][3:]), auxVector[1].strip("'"), movieHASH)
+        elif auxVector[0] == "tags":
+            taglist = StringToTags(strIn.replace("tags ", ""))
+            dataframe = tagSearch(taglist, movieHASH)
+
+        if type(dataframe) != type(None):
+            display(dataframe)
+
+console(input())
