@@ -48,7 +48,7 @@ def userSearch(userId, userHASH, movieHASH):
             auxDF = pd.DataFrame([[user_rating, title, global_rating, count]], columns=['user_rating', 'title', 'global_rating', 'count'])
             df = df.append(auxDF)
 
-        print(df.to_string())
+        return df
     else:
         return None
 
