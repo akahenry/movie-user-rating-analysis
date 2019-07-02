@@ -1,14 +1,8 @@
 # Código principal – Carrega nas estruturas de dados
-#from IPython.display import display
 from readFiles import *
 from timeClass import Time
 import pandas as pd
 import os
-
-# cls: void -> void
-# Objetivo: limpa o console.
-def cls():
-    os.system('cls' if os.name=='nt' else 'clear')
 
 # movieSearch: string trieNode Hash -> pd.DataFrame
 # Objetivo: dados um prefixo, uma trie e uma hash referente aos filmes, a função
@@ -99,8 +93,9 @@ def topSearch(n, genre, movieHASH):
     # Vai inserindo na lista, e retirando o último elemento (quando a lista
     # tem tamanho n)
     movieList = []
+    movieHASH.rewind()
     for movie in movieHASH.iterable():
-        if movie.data[3] >= 1000:
+        if movie.data[3] >= 10:
             if genre.lower() in movie.data[0].lower().split('|'):
                 if len(movieList) < n:
                     insort(movieList, movie)
@@ -128,6 +123,7 @@ def topSearch(n, genre, movieHASH):
 def tagSearch(tagList, movieHASH):
     movieList = []
     df = pd.DataFrame(columns=['title', 'genres', 'rating', 'count'])
+    movieHASH.rewind()
     for movie in movieHASH.iterable():
         # Coloca todos filmes da primeira tag
         tag = tagList[0]
@@ -155,81 +151,24 @@ def tagSearch(tagList, movieHASH):
 
 time = Time("main")
 
-# Lendo arquivos CSV
-movieMatrix = readCSV("movie.csv")
-#ratingMatrix = readCSV("rating.csv")
-tagMatrix = readCSV("tag.csv")
+rating_file = open("rating.csv", "r", encoding="utf8")
+movie_file = open("movie.csv", "r", encoding="utf8")
+tag_file = open("tag.csv", "r", encoding="utf8")
 
-print("Read the CSV files")
-
-time.time("load_files")
-
-trie = createTrie(movieMatrix)
+trie = createTrie(movie_file)
 
 print("Created Trie")
 
 time.time("create_trie")
 
-movieHASH = Hash(int(movieMatrix[-1][0]))
+(movieHASH, userHASH) = createHashs(rating_file, movie_file, tag_file)
 
-time.time("initialize_hash")
-
-# Adiciona id e generos dos filmes
-for movie in movieMatrix:
-    movieId = int(movie[0])
-    name = movie[1]
-    genres = movie[2]
-    movieHASH.insert(movieId, (genres, [], 0, 0, name))
-
-time.time("add_movie_id")
-
-rating_file = open("rating.csv", "r")
-userHASH = Hash(sum(1 for line in rating_file))
-
-rating_file.seek(0)
-next(rating_file)
-
-# Para cada rating, incrementa numero de rating do filme e seu somatório de notas
-for rating_str in rating_file:
-    rating = rating_str.split(",")
-    userId = int(rating[0])
-    movieId = int(rating[1])
-    ratingValue = float(rating[2])
-
-    userHASH.append(userId, (movieId, ratingValue))
-    aux = movieHASH.search(movieId)
-    #(genres, tags, mean, n_ratings, name)
-    if aux != None:
-        movieHASH.insert(movieId, (aux.data[0], aux.data[1], aux.data[2] + ratingValue, aux.data[3] + 1, aux.data[4]))
-
-time.time("read rating")
-
-# Calcula a média de notas de cada filme
-for movie in movieMatrix:
-    movieId = int(movie[0])
-    movieTemp = movieHASH.search(movieId)
-    if(movieTemp != None and movieTemp.data[3] != 0):
-        movieHASH.insert(movieId, (movieTemp.data[0], [], movieTemp.data[2]/movieTemp.data[3], movieTemp.data[3], movieTemp.data[4]))
-
-del movieMatrix
-
-time.time("calculate_media")
-
-# Insere as Tags na Hash de filmes.
-for tag in tagMatrix:
-    movieId = int(tag[1])
-    tagName = tag[2]
-
-    movieTemp = movieHASH.search(movieId)
-
-    if movieTemp != None and tagName not in movieTemp.data[1]:
-        movieHASH.insert(movieId, (movieTemp.data[0], movieTemp.data[1] + [tagName], movieTemp.data[2], movieTemp.data[3], movieTemp.data[4]))
-
-del tagMatrix
-
-time.time("insert tags and create hash")
+movie_file.close()
+rating_file.close()
+tag_file.close()
 
 print("Created Hashes and finished Loading.")
+time.time("create_hashs")
 time.print()
 
 # Função para Input do Console
@@ -252,6 +191,6 @@ def console(strIn):
             dataframe = tagSearch(taglist, movieHASH)
 
         if type(dataframe) != type(None):
-            display(dataframe)
+            print(dataframe.to_string())
 
 console(input())

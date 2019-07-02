@@ -18,8 +18,10 @@ class Hash_element():
 #   na tabela, devido a função de hash escolhida.
 class Hash():
     def __init__(self, length):
+        self.i = 0
         self.length = length
         self.hash_list = list()
+        self.iter_list = iter(self.hash_list)
         for i in range(length):
             self.hash_list.append(Hash_element())
 
@@ -57,7 +59,7 @@ class Hash():
     # Objetivo: dada uma chave inteira a função devolve o Hash_element referente a essa chave
     #   se ela está presente na lista. Senão, devolve None.
     def search(self, key):
-        index = key%self.length
+        index = self.h_function(key)%self.length
         if self.hash_list[index].key == key:
             return self.hash_list[index]
         else:
@@ -65,5 +67,5 @@ class Hash():
 
     def iterable(self):
         for hash_element in self.hash_list:
-            if hash_element.key != None:
+            if hash_element.used:
                 yield hash_element

@@ -53,39 +53,7 @@ class trieNode():
 
         return listByPrefix(node, key)
 
-
-    # def listByPrefix(self, key):
-    #     node = self
-    #     string = key
-    #     for char in key:
-    #         for child in node.children:
-    #             if child.key == char:
-    #                 node = child
-    #                 break
-    #
-    #     if node.children == None:
-    #         if node.key == key[-1] and node.data != None:
-    #             return (string, [])
-    #     else:
-    #         for child in node.children:
-
-
-
     def print(self):
         for child in self.children:
             print(child.key)
             child.print()
-
-# trie = trieNode()
-# op = 1
-# while op != 0:
-#     op = int(input("0-Sair\n1-Inserir\n2-Printar\n3-Listar por prefixo\n"))
-#     if op == 1:
-#         word = input("Word: ")
-#         data = input("data: ")
-#         trie.insert(word, data)
-#     elif op == 2:
-#         trie.print()
-#     elif op == 3:
-#         list = trie.find(input("Prefix: "))
-#         print(list)
